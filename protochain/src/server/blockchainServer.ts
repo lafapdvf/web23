@@ -1,5 +1,4 @@
-import { ValueError } from "./../../node_modules/@sinclair/typebox/build/cjs/errors/errors.d";
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import morgan from "morgan";
 import Blockchain from "../lib/blockchain";
 import Block from "../lib/block";
@@ -13,7 +12,7 @@ app.use(express.json());
 
 const blockchain = new Blockchain();
 
-app.get("/status", (req, res, next) => {
+app.get("/status", (req: Request, res: Response, next: NextFunction) => {
   res.json({
     numberOfBlocks: blockchain.blocks.length,
     isValid: blockchain.isValid(),
@@ -21,16 +20,23 @@ app.get("/status", (req, res, next) => {
   });
 });
 
-app.get("/blocks/:indexOrHash", (req, res, next) => {
-  let block;
-  if (/^[0-9]+$/.test(req.params.indexOrHash))
-    block = blockchain.blocks[parseInt(req.params.indexOrHash)];
-  else block = blockchain.getBlock(req.params.indexOrHash);
-  if (block) res.json(block);
-  else res.sendStatus(404);
+app.get("/blocks/next", (req: Request, res: Response, next: NextFunction) => {
+  res.json(blockchain.getNextBlock());
 });
 
-app.post("/blocks", (req, res, next) => {
+app.get(
+  "/blocks/:indexOrHash",
+  (req: Request, res: Response, next: NextFunction) => {
+    let block;
+    if (/^[0-9]+$/.test(req.params.indexOrHash))
+      block = blockchain.blocks[parseInt(req.params.indexOrHash)];
+    else block = blockchain.getBlock(req.params.indexOrHash);
+    if (block) res.json(block);
+    else res.sendStatus(404);
+  }
+);
+
+app.post("/blocks", (req: Request, res: Response, next: NextFunction) => {
   if (req.body.hash === undefined) return res.sendStatus(422);
 
   const block = new Block(req.body as Block);
