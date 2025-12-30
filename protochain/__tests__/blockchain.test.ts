@@ -1,8 +1,10 @@
 import { describe, expect, jest, test } from "@jest/globals";
 import Block from "../src/lib/block";
 import Blockchain from "../src/lib/blockchain";
+import Transaction from "../src/lib/transaction";
 
 jest.mock("../src/lib/block");
+jest.mock("../src/lib/transaction");
 
 describe("Blockchain tests", () => {
   test("Should have genesis block", () => {
@@ -21,7 +23,7 @@ describe("Blockchain tests", () => {
       new Block({
         index: 1,
         previousHash: blockchain.blocks[0].hash,
-        data: "Block 2",
+        transactions: [new Transaction({ data: "Block 2" } as Transaction)],
       } as Block)
     );
     expect(blockchain.isValid().success).toEqual(true);
@@ -33,7 +35,7 @@ describe("Blockchain tests", () => {
       new Block({
         index: 1,
         previousHash: blockchain.blocks[0].hash,
-        data: "Block 2",
+        transactions: [new Transaction({ data: "Block 2" } as Transaction)],
       } as Block)
     );
 
@@ -48,7 +50,7 @@ describe("Blockchain tests", () => {
       new Block({
         index: 1,
         previousHash: blockchain.blocks[0].hash,
-        data: "Block 2",
+        transactions: [new Transaction({ data: "Block 2" } as Transaction)],
       } as Block)
     );
     expect(result.success).toBeTruthy();
@@ -65,7 +67,7 @@ describe("Blockchain tests", () => {
     const block = new Block({
       index: -1,
       previousHash: blockchain.blocks[0].hash,
-      data: "Block 2",
+      transactions: [new Transaction({ data: "Block 2" } as Transaction)],
     } as Block);
     const result = blockchain.addBlock(block);
     expect(result.success).toBeFalsy();
