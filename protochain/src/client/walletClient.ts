@@ -29,7 +29,8 @@ function menu() {
     console.log("2 - Retrieve Wallet");
     console.log("3 - Check Balance");
     console.log("4 - Send tx");
-    console.log("5 - Logout");
+    console.log("5 - Search tx");
+    console.log("6 - Logout");
     rl.question("Choose your option: ", (answer) => {
       switch (answer) {
         case "1":
@@ -45,6 +46,9 @@ function menu() {
           sendTx();
           break;
         case "5":
+          searchTx();
+          break;
+        case "6":
           logout();
           break;
         default: {
@@ -148,6 +152,16 @@ function sendTx() {
     });
   });
   preMenu();
+}
+function searchTx() {
+  console.clear();
+  rl.question(`Your tx hash: `, async (hash) => {
+    const response = await axios.get(
+      `${BLOCKCHAIN_SERVER}transactions/${hash}`
+    );
+    console.log(response.data);
+    return preMenu();
+  });
 }
 
 function logout() {
