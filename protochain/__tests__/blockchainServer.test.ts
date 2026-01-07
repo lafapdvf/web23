@@ -3,9 +3,12 @@ import { describe, expect, test, jest } from "@jest/globals";
 import { app } from "../src/server/blockchainServer";
 import Block from "../src/lib/block";
 import Transaction from "../src/lib/transaction";
+import TransactionInput from "../src/lib/transactionInput";
 
 jest.mock("../src/lib/block");
 jest.mock("../src/lib/blockchain");
+jest.mock("../src/lib/transaction");
+jest.mock("../src/lib/transactionInput");
 
 describe("BlockchainServer Tests", () => {
   test("GET /status - Should return valid status", async () => {
@@ -75,7 +78,10 @@ describe("BlockchainServer Tests", () => {
   });
 
   test("POST /transactions/ - Should add tx", async () => {
-    const tx = new Transaction({ data: "tx1" } as Transaction);
+    const tx = new Transaction({
+      txInput: new TransactionInput(),
+      to: "walletTo",
+    } as Transaction);
     const response = await request(app).post("/transactions/").send(tx);
 
     expect(response.status).toEqual(201);

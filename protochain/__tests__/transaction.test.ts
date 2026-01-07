@@ -1,10 +1,16 @@
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, test, jest } from "@jest/globals";
 import Transaction from "../src/lib/transaction";
 import TransactionType from "../src/lib/transactionType";
+import TransactionInput from "../src/lib/transactionInput";
+
+jest.mock("../src/lib/transactionInput");
 
 describe("Transaction tests", () => {
   test("Should be valid (REGULAR default)", () => {
-    const tx = new Transaction({ data: "tx" } as Transaction);
+    const tx = new Transaction({
+      txInput: new TransactionInput(),
+      to: "walletTo",
+    } as Transaction);
 
     const valid = tx.isValid();
     expect(valid.success).toBeTruthy();
@@ -12,9 +18,12 @@ describe("Transaction tests", () => {
 
   test("Should be valid (FEE)", () => {
     const tx = new Transaction({
-      data: "tx",
+      to: "walletTo",
       type: TransactionType.FEE,
     } as Transaction);
+
+    tx.txInput = undefined;
+    tx.hash = tx.getHash();
 
     const valid = tx.isValid();
     expect(valid.success).toBeTruthy();
@@ -22,7 +31,8 @@ describe("Transaction tests", () => {
 
   test("Should NOT be valid (invalid hash)", () => {
     const tx = new Transaction({
-      data: "tx",
+      txInput: new TransactionInput(),
+      to: "walletTo",
       type: TransactionType.REGULAR,
       timestamp: Date.now(),
       hash: "abc",
@@ -32,8 +42,22 @@ describe("Transaction tests", () => {
     expect(valid.success).toBeFalsy();
   });
 
-  test("Should NOT be valid (invalid data)", () => {
+  test("Should NOT be valid (invalid to)", () => {
     const tx = new Transaction();
+
+    const valid = tx.isValid();
+    expect(valid.success).toBeFalsy();
+  });
+
+  test("Should NOT be valid (invalid txInput)", () => {
+    const tx = new Transaction({
+      to: "toWallet",
+      txInput: new TransactionInput({
+        amount: -10,
+        fromAddress: "fromWallet",
+        signature: "abc",
+      } as TransactionInput),
+    } as Transaction);
 
     const valid = tx.isValid();
     expect(valid.success).toBeFalsy();
